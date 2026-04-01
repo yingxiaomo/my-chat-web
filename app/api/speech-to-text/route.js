@@ -26,7 +26,7 @@ export async function POST(request) {
 	})
 
 	return utils.returnJson({
-		text: response.text || '',
+		text: utils.extractResponseText(response),
 		info: response.transcription_info || {},
 		wordCount: response.word_count || 0,
 		segments: response.segments || []

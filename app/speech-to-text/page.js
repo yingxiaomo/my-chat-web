@@ -24,6 +24,29 @@ function fileToBase64(file) {
 	})
 }
 
+function formatDuration(duration) {
+	if (duration == null || Number.isNaN(Number(duration))) return '--'
+
+	const totalSeconds = Math.max(0, Math.round(Number(duration)))
+	const hours = Math.floor(totalSeconds / 3600)
+	const minutes = Math.floor((totalSeconds % 3600) / 60)
+	const seconds = totalSeconds % 60
+
+	if (hours > 0) {
+		return [hours, minutes, seconds].map((item) => String(item).padStart(2, '0')).join(':')
+	}
+
+	return [minutes, seconds].map((item) => String(item).padStart(2, '0')).join(':')
+}
+
+function formatTranscriptText(text) {
+	return String(text || '')
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean)
+		.join('\n')
+}
+
 export default function SpeechToTextPage() {
 	useInitModel()
 	useSidebarClose()
@@ -155,11 +178,11 @@ export default function SpeechToTextPage() {
 						<div className='text-sm text-muted-foreground space-y-1'>
 							<div>识别语言: {info.language || 'zh'}</div>
 							<div>语言置信度: {info.language_probability ?? '--'}</div>
-							<div>音频时长: {info.duration ?? '--'} 秒</div>
+							<div>音频时长: {formatDuration(info.duration)}</div>
 						</div>
 					) : null}
 					<Textarea
-						value={text}
+						value={formatTranscriptText(text)}
 						readOnly
 						placeholder='转写结果会显示在这里'
 						className='min-h-64 max-h-none'

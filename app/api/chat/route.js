@@ -23,7 +23,7 @@ export async function GET(request) {
 	}
 
 	const res = await env.AI.run(model, inputs)
-	return utils.returnJson({ text: res.response })
+	return utils.returnJson({ text: utils.extractResponseText(res) })
 }
 
 export async function POST(request) {

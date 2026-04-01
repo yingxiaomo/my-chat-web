@@ -34,3 +34,33 @@ export function getQuery(req, key) {
 	const url = new URL(req.url || req.request.url)
 	return url.searchParams.get(key) || ''
 }
+
+function extractTextValue(value) {
+	if (!value) return ''
+	if (typeof value === 'string') return value
+	if (Array.isArray(value)) {
+		return value.map((item) => extractTextValue(item)).join('')
+	}
+	if (typeof value === 'object') {
+		if (typeof value.text === 'string') return value.text
+		if (typeof value.content === 'string') return value.content
+		if (value.content) return extractTextValue(value.content)
+		if (value.message) return extractTextValue(value.message)
+		if (value.response) return extractTextValue(value.response)
+	}
+	return ''
+}
+
+export function extractResponseText(response) {
+	if (!response || typeof response !== 'object') return ''
+
+	return extractTextValue(
+		response.text ||
+			response.response ||
+			response.translated_text ||
+			response.content ||
+			response.message ||
+			response.choices?.[0]?.message ||
+			response.choices?.[0]?.delta
+	)
+}

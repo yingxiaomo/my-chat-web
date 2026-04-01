@@ -1,5 +1,6 @@
 import { createParser } from 'eventsource-parser'
 import { nanoid } from 'nanoid'
+import { getStreamChunkPayload } from './thinking'
 
 export const ChatTypeEnum = {
 	chat: 1,
@@ -52,6 +53,8 @@ export const genId = () => {
 export const streamReader = async (stream, cb) => {
 	const reader = stream.getReader()
 	const decoder = new TextDecoder()
+	let hasReasoning = false
+	let hasContentStarted = false
 
 	const parser = createParser({ onEvent })
 	function onEvent(event) {
@@ -60,7 +63,21 @@ export const streamReader = async (stream, cb) => {
 			if (text.startsWith('[DONE]')) {
 				cb(text) // 流结束时的标识
 			} else {
-				cb(JSON.parse(text).response)
+				const payload = getStreamChunkPayload(JSON.parse(text))
+				if (payload.reasoning) {
+					if (!hasReasoning) {
+						cb('> **思考过程**\n')
+						hasReasoning = true
+					}
+					cb(payload.reasoning)
+				}
+				if (payload.content) {
+					if (hasReasoning && !hasContentStarted) {
+						cb('\n\n')
+						hasContentStarted = true
+					}
+					cb(payload.content)
+				}
 			}
 		}
 	}
