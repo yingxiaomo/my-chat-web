@@ -1,6 +1,7 @@
 export * from './post'
 export * from './validation'
 export * from './models'
+export { createChatChunk, createChatResponse } from '@/utils/chat-payload'
 
 export function returnJson(data) {
 	return Response.json({
@@ -63,4 +64,31 @@ export function extractResponseText(response) {
 			response.choices?.[0]?.message ||
 			response.choices?.[0]?.delta
 	)
+}
+
+export function extractResponsePayload(response) {
+	if (!response || typeof response !== 'object') {
+		return createChatResponse()
+	}
+
+	const content = extractTextValue(
+		response.text ||
+			response.response ||
+			response.translated_text ||
+			response.content ||
+			response.message ||
+			response.choices?.[0]?.message?.content ||
+			response.choices?.[0]?.delta?.content
+	)
+
+	const reasoning = extractTextValue(
+		response.reasoning ||
+			response.reasoning_content ||
+			response.choices?.[0]?.message?.reasoning ||
+			response.choices?.[0]?.message?.reasoning_content ||
+			response.choices?.[0]?.delta?.reasoning ||
+			response.choices?.[0]?.delta?.reasoning_content
+	)
+
+	return createChatResponse({ content, reasoning })
 }

@@ -1,4 +1,12 @@
-import { ChatRole, ModelTypeEnum, RouterEnum, mapPathToKey } from '@/utils'
+import {
+	ChatRole,
+	ModelTypeEnum,
+	RouterEnum,
+	mapPathToKey,
+	mergeChatMessage,
+	normalizeChatMessage,
+	normalizeChatMessages
+} from '@/utils'
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
@@ -112,7 +120,7 @@ export const useChatStore = create(
 			preTrans: true,
 			addMessage: (message) =>
 				set((state) => {
-					let newMessages = state.messages.concat(message)
+					let newMessages = state.messages.concat(normalizeChatMessage(message))
 					if (newMessages.length > 500) {
 						newMessages.shift()
 					}
@@ -122,28 +130,21 @@ export const useChatStore = create(
 				set((state) => {
 					let msg = state.messages.filter((item) => item.id == message.id)[0]
 					if (!msg) {
-						let newMessages = state.messages.concat({ ...message, pending: true })
+						let newMessages = state.messages.concat(
+							normalizeChatMessage({ ...message, pending: true })
+						)
 						if (newMessages.length > 500) {
 							newMessages.shift()
 						}
 						return { messages: newMessages }
 					}
-					//标识
-					let text = msg.content + message.content
-					const isDone = message.content.endsWith('[DONE]')
-					message.pending = !isDone
-
-					let newMsg = {
-						...msg,
-						...message,
-						content: isDone ? text.replace('[DONE]', '') : text
-					}
+					let newMsg = mergeChatMessage(msg, message)
 					let msgArr = state.messages.filter((item) => item.id !== message.id)
 					return { messages: msgArr.concat(newMsg) }
 				}),
 			addTransMessage: (message) =>
 				set((state) => {
-					let newMessages = [...state.transMessages, message]
+					let newMessages = [...state.transMessages, normalizeChatMessage(message)]
 					if (newMessages.length > 500) {
 						newMessages.shift()
 					}
@@ -153,7 +154,10 @@ export const useChatStore = create(
 				set((state) => {
 					let newMessages = [
 						...state.imgMessages,
-						{ ...message, isImage: message.role === ChatRole.Assistant }
+						normalizeChatMessage({
+							...message,
+							isImage: message.role === ChatRole.Assistant
+						})
 					]
 					if (newMessages.length > 100) {
 						newMessages.shift()
@@ -165,7 +169,20 @@ export const useChatStore = create(
 			clearImgMessages: () => set({ imgMessages: [] }),
 			setPreTrans: (preTrans) => set({ preTrans })
 		}),
-		{ name: 'chat-store', version: 1 }
+		{
+			name: 'chat-store',
+			version: 2,
+			migrate: (persistedState) => {
+				const state = persistedState || {}
+
+				return {
+					...state,
+					messages: normalizeChatMessages(state.messages),
+					transMessages: normalizeChatMessages(state.transMessages),
+					imgMessages: normalizeChatMessages(state.imgMessages)
+				}
+			}
+		}
 	)
 )
 

@@ -1,3 +1,5 @@
+import { createChatResponse } from './chat-payload'
+
 function extractText(value) {
 	if (!value) return ''
 	if (typeof value === 'string') return value
@@ -15,7 +17,7 @@ function extractText(value) {
 
 export function getStreamChunkPayload(chunk) {
 	if (!chunk || typeof chunk !== 'object') {
-		return { reasoning: '', content: '' }
+		return createChatResponse()
 	}
 
 	const choice = chunk.choices?.[0] || {}
@@ -35,35 +37,16 @@ export function getStreamChunkPayload(chunk) {
 		delta.content || message.content || chunk.response || chunk.content || chunk.text
 	)
 
-	return { reasoning, content }
+	return createChatResponse({ reasoning, content })
 }
 
 // openai 兼容格式 返回数据解析 包括 推理过程
 export async function formatStreamResponse(stream, onCb) {
-	let isFirstChunk = false
-	let isLastChunk = false
 	for await (const chunk of stream) {
-		let { reasoning, content } = getStreamChunkPayload(chunk)
-
-		if (reasoning) {
-			if (!isFirstChunk) {
-				onCb('> **思考过程**\n')
-				isFirstChunk = true
-			}
-			if (reasoning.includes('\n\n')) {
-				reasoning = reasoning.replace(/\n\n/g, '\n> ')
-			}
-			onCb(reasoning)
-		}
-
-		if (content) {
-			if (isFirstChunk && !isLastChunk) {
-				onCb('\n\n')
-				isLastChunk = true
-			}
-			onCb(content)
-		}
+		const { reasoning, content } = getStreamChunkPayload(chunk)
+		if (!reasoning && !content) continue
+		onCb({ reasoning, content })
 	}
 
-	onCb('[DONE]') // 兼容格式
+	onCb({ done: true })
 }

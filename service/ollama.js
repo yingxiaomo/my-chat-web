@@ -16,9 +16,8 @@ export async function chatWithOllama({ model, messages }, onCb) {
 	}
 
 	for await (const [text, done] of streamReaderOllama(res.body)) {
-		onCb(text)
+		onCb({ content: text, done })
 	}
-	onCb('[DONE]') // 兼容格式
 }
 
 export async function getOllamaModels() {

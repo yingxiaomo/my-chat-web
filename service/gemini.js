@@ -36,23 +36,23 @@ export async function chatWithGemini({ model, messages }, onCb = () => {}) {
 		const response = await chatModel.generateContent(inputs)
 		for (const part of response.response.candidates[0].content.parts) {
 			if (part.text) {
-				onCb(part.text)
+				onCb({ content: part.text })
 			} else if (part.inlineData) {
 				const imageData = await compressImage(part.inlineData.data)
 				// 特定结构
-				onCb(`chat_img__${imageData}__chat_img`)
+				onCb({ content: `chat_img__${imageData}__chat_img` })
 			}
 		}
-		onCb('[DONE]')
+		onCb({ done: true })
 		return
 	}
 
 	try {
 		const result = await chatModel.generateContentStream(inputs)
 		for await (const chunk of result.stream) {
-			onCb(chunk.text())
+			onCb({ content: chunk.text() })
 		}
-		onCb('[DONE]') // 兼容格式
+		onCb({ done: true }) // 兼容格式
 	} catch (error) {
 		showToast(error.message)
 	}

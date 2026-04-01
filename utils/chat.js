@@ -1,5 +1,6 @@
 import { createParser } from 'eventsource-parser'
 import { nanoid } from 'nanoid'
+import { createChatMessage } from './chat-payload'
 import { getStreamChunkPayload } from './thinking'
 
 export const ChatTypeEnum = {
@@ -17,19 +18,23 @@ export const ChatRole = {
 
 export const genUserMessage = (content, model = '') => {
 	return {
+		...createChatMessage({
+			role: ChatRole.User,
+			content
+		}),
 		id: genId(),
 		timestamp: Date.now(),
-		role: ChatRole.User,
-		content,
 		model
 	}
 }
 export const genAssistantMessage = (content, model = '') => {
 	return {
+		...createChatMessage({
+			role: ChatRole.Assistant,
+			content
+		}),
 		id: genId(),
 		timestamp: Date.now(),
-		role: ChatRole.Assistant,
-		content,
 		model
 		// pending: true
 	}
@@ -53,30 +58,17 @@ export const genId = () => {
 export const streamReader = async (stream, cb) => {
 	const reader = stream.getReader()
 	const decoder = new TextDecoder()
-	let hasReasoning = false
-	let hasContentStarted = false
 
 	const parser = createParser({ onEvent })
 	function onEvent(event) {
 		if (event.event === undefined || event.event === 'message') {
 			const text = event.data.trim()
 			if (text.startsWith('[DONE]')) {
-				cb(text) // 流结束时的标识
+				cb({ done: true }) // 流结束时的标识
 			} else {
 				const payload = getStreamChunkPayload(JSON.parse(text))
-				if (payload.reasoning) {
-					if (!hasReasoning) {
-						cb('> **思考过程**\n')
-						hasReasoning = true
-					}
-					cb(payload.reasoning)
-				}
-				if (payload.content) {
-					if (hasReasoning && !hasContentStarted) {
-						cb('\n\n')
-						hasContentStarted = true
-					}
-					cb(payload.content)
+				if (payload.reasoning || payload.content) {
+					cb(payload)
 				}
 			}
 		}

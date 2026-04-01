@@ -202,11 +202,17 @@ State is centralized in `store/index.js`.
 ## Message And Stream Handling
 
 - Message schema helpers live in `utils/chat.js`.
+- Server-side chat payload helpers live in `app/api/chat/schema.js` and `app/api/utils/index.js`.
 - IDs come from `nanoid`.
 - Chat context window sent to the backend is currently only the latest 4 messages plus the new message.
 - Streaming server-sent event parsing for internal APIs is handled by `streamReader()`.
 - OpenAI-compatible reasoning streams are normalized by `formatStreamResponse()` in `utils/thinking.js`.
 - UI chunk coalescing is throttled by `utils/queue.js` to avoid excessive rerenders.
+- Shared chat shape is now:
+  - message: `{ role, content, reasoning }`
+  - stream chunk: `{ content, reasoning, done }`
+  - non-stream chat payload: `{ content, reasoning }`
+- Legacy plain `text` is still returned by `GET /api/chat` for compatibility, but it mirrors `content`.
 
 ## Local Persistence
 

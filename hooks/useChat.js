@@ -84,12 +84,12 @@ export function useChat(type) {
 				if (mockApi) {
 					const data = await chatApi(params)
 					addMessageChunk({ ...msg, content: data.text })
-					addMessageChunk({ ...msg, content: '[DONE]' })
+					addMessageChunk({ ...msg, done: true })
 				} else {
 					await chatApi(
 						params,
-						queue.startQueue((text) => {
-							addMessageChunk({ ...msg, content: text })
+						queue.startQueue((chunk) => {
+							addMessageChunk({ ...msg, ...chunk })
 						})
 					)
 				}

@@ -11,47 +11,8 @@ import { MarkdownPreview } from '@/components/common/MarkdownPreview'
 import { RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-function parseReasoningContent(content) {
-	const text = String(content || '')
-	if (!text) {
-		return { reasoning: '', content: '' }
-	}
-
-	const patterns = [
-		/^\s*>\s*\*\*思考过程\*\*\s*\n?/,
-		/^\s*\*\*思考过程\*\*\s*\n?/,
-		/^\s*>\s*思考过程[:：]?\s*\n?/,
-		/^\s*思考过程[:：]?\s*\n?/
-	]
-
-	const marker = patterns.find((pattern) => pattern.test(text))
-	if (!marker) {
-		return { reasoning: '', content: text }
-	}
-
-	const body = text.replace(marker, '')
-	const separators = [/\n{3,}/, /\n\s*\n(?=#{1,6}\s|\*\*|`{3,}|-{3,}|\d+\.\s|[A-Za-z\u4e00-\u9fa5])/]
-
-	for (const separator of separators) {
-		const match = separator.exec(body)
-		if (!match) continue
-
-		const splitIndex = match.index
-		const reasoning = body.slice(0, splitIndex).trim()
-		const answer = body.slice(splitIndex + match[0].length).trim()
-		if (!answer) continue
-
-		return {
-			reasoning,
-			content: answer
-		}
-	}
-
-	return { reasoning: '', content: text }
-}
-
 const ChatMessage = memo(({ message, onRegenerate }) => {
-	const { role, pending, content, timestamp, isImage, nickName, model } = message
+	const { role, pending, content, reasoning, timestamp, isImage, nickName, model } = message
 
 	const isUser = role === ChatRole.User
 	const roleName = isUser ? 'self-end flex-row-reverse' : 'self-start'
@@ -68,10 +29,6 @@ const ChatMessage = memo(({ message, onRegenerate }) => {
 			return parseImage(content)
 		}
 	}, [isImage, content])
-
-	const { reasoning, content: answerContent } = useMemo(() => {
-		return parseReasoningContent(finalContent)
-	}, [finalContent])
 
 	return (
 		<div className='flex flex-col gap-2 mb-5'>
@@ -110,7 +67,7 @@ const ChatMessage = memo(({ message, onRegenerate }) => {
 									</div>
 								</details>
 							)}
-							<MarkdownPreview content={answerContent} />
+							<MarkdownPreview content={finalContent} />
 						</div>
 					)}
 				</div>

@@ -5,6 +5,7 @@ export * from './router'
 export * from './models'
 export * from './storage'
 export * from './thinking'
+export * from './chat-payload'
 
 export const isDev = process.env.NODE_ENV !== 'production'
 export const mockApi = process.env.NEXT_PUBLIC_MOCK_API === 'true'

@@ -1,3 +1,5 @@
+import { createChatChunk } from './chat-payload'
+
 class TextQueue {
 	constructor() {
 		this.queue = []
@@ -7,8 +9,12 @@ class TextQueue {
 
 	startQueue(cb) {
 		this.reset() // 确保队列和计时器初始状态
-		return (text) => {
-			this.addText(text)
+		return (chunk) => {
+			this.addText(chunk)
+			if (chunk?.done) {
+				this.flush(cb)
+				return
+			}
 			this.runQueue(cb)
 		}
 	}
@@ -21,19 +27,42 @@ class TextQueue {
 		}
 	}
 
-	addText(str) {
-		this.queue.push(str)
+	addText(chunk) {
+		this.queue.push(chunk)
 	}
 
 	isEmpty() {
 		return this.queue.length === 0
 	}
 
+	flush(cb) {
+		if (this.timer) {
+			clearTimeout(this.timer)
+			this.timer = null
+		}
+		if (!this.isEmpty()) {
+			const chunk = this.mergeQueue()
+			this.queue = []
+			cb(chunk)
+		}
+	}
+
+	mergeQueue() {
+		return this.queue.reduce(
+			(acc, item = {}) => ({
+				content: acc.content + (item.content || ''),
+				reasoning: acc.reasoning + (item.reasoning || ''),
+				done: acc.done || !!item.done
+			}),
+			createChatChunk()
+		)
+	}
+
 	runQueue(cb) {
 		if (this.timer) return // 防止重复运行
 		this.timer = setTimeout(() => {
 			if (!this.isEmpty()) {
-				const text = this.queue.join('') // 合并所有队列内容
+				const text = this.mergeQueue() // 合并所有队列内容
 				this.queue = [] // 清空队列
 				cb(text) // 执行回调
 			}
