@@ -151,3 +151,7 @@ blockquote {
 	color: #555;
 	font-style: italic;
 }
+
+details[open] .details-arrow {
+	transform: rotate(90deg);
+}
