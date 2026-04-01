@@ -9,7 +9,8 @@
 		"lint": "next lint",
 		"pages:build": "npx @cloudflare/next-on-pages",
 		"preview": "pnpm pages:build && wrangler pages dev --binding AI",
-		"deploy": "pnpm pages:build && wrangler pages deploy"
+		"deploy": "pnpm pages:build && wrangler pages deploy",
+		"deploy:dev": "pnpm pages:build && wrangler pages deploy --branch dev"
 	},
 	"dependencies": {
 		"@google/generative-ai": "^0.24.0",

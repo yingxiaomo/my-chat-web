@@ -19,10 +19,12 @@
 - Cloudflare Pages build: `pnpm pages:build`
 - Local Pages preview: `pnpm preview`
 - Deploy to Cloudflare Pages: `pnpm deploy`
+- Deploy to Cloudflare Pages dev preview branch: `pnpm deploy:dev`
 
 ## Environment And Platform Notes
 
 - Cloudflare config is in `wrangler.toml`.
+- Pages dev deployments are branch-based preview deployments. This repo uses `pnpm deploy:dev` to deploy to the `dev` branch preview environment.
 - Edge API routes rely on `getRequestContext().env`, so cloud deployment assumptions are built into `app/api/**/route.js`.
 - `.env.example` only covers some browser-side vars. Real production secrets for Cloudflare/Gemini/private routes come from Cloudflare env/bindings, not from this file.
 - README explicitly states the project is intended for Cloudflare deployment only.

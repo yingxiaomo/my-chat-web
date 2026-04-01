@@ -51,6 +51,7 @@
 pnpm run dev
 
 pnpm run deploy
+pnpm run deploy:dev
 ```
 
 本地开发调试接口时，
@@ -66,9 +67,15 @@ pnpm run deploy
 
 - 仓库下载到本地 安装依赖 pnpm i
 - 更改 wrangler.toml 里的 name 为你想要的名字
-- 执行 pnpm run deploy
+- 执行 `pnpm run deploy` 部署正式环境
+- 执行 `pnpm run deploy:dev` 部署到 Cloudflare Pages 的 `dev` 预览分支环境
 - 看终端提示 第一次需要登录
 - 完成 可以到 cf dashboard 里查看
+
+说明：
+
+- Cloudflare Pages 的 dev/preview 部署走分支环境，不是 `wrangler.toml` 里的命名 `env`
+- `deploy:dev` 会发布到 `dev` branch 对应的 preview deployment
 
 ## 说明
 
