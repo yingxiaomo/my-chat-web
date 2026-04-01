@@ -18,6 +18,11 @@ export async function chatWithApiGet(data) {
 export async function transWithApi({ text, source = '', target = '' }) {
 	return await apiGet('/api/trans', { text, source, target })
 }
+
+export async function speechToTextWithApi({ audio, model = '', language = 'zh', task = 'transcribe' }) {
+	return await apiPost('/api/speech-to-text', { audio, model, language, task })
+}
+
 export async function genImageWithApi({ prompt, model = '' }, preTrans) {
 	let finalPrompt = prompt
 	if (preTrans) {

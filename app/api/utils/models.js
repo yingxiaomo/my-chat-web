@@ -3,6 +3,16 @@ export const aiModelList = [
 		tag: 'chat',
 		models: [
 			{
+				name: 'kimi-k2.5',
+				model: '@cf/moonshotai/kimi-k2.5',
+				maxCount: 1000
+			},
+			{
+				name: 'glm-4.7-flash',
+				model: '@cf/zai-org/glm-4.7-flash',
+				maxCount: 1000
+			},
+			{
 				name: 'gpt-oss-120b',
 				model: '@cf/openai/gpt-oss-120b',
 				maxCount: 1000
@@ -80,10 +90,19 @@ export const aiModelList = [
 				]
 			}
 		]
+	},
+	{
+		tag: 'speech-to-text',
+		models: [
+			{
+				name: 'whisper-large-v3-turbo',
+				model: '@cf/openai/whisper-large-v3-turbo',
+				maxCount: 1
+			}
+		]
 	}
 ]
 
-// export const defaultChatModel = aiModelList[0].models[0].model
-export const defaultChatModel = aiModelList[0].models.find(i => i.name.indexOf('llama3.3') > -1).model
+export const defaultChatModel = aiModelList[0].models.find((i) => i.model === '@cf/moonshotai/kimi-k2.5').model
 export const defaultGenImageModel = aiModelList[1].models[0].model
 export const defaultTransModel = aiModelList[2].models[0].model

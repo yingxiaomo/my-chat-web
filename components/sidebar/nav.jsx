@@ -8,13 +8,14 @@ import {
 	SidebarMenuItem
 } from '@/components/ui/sidebar'
 import { aiToolList, RouterEnum } from '@/utils'
-import { ImageMinus, FileType, MessageCircleMore } from 'lucide-react'
+import { ImageMinus, FileType, MessageCircleMore, Mic } from 'lucide-react'
 import Link from 'next/link'
 
 const iconMap = {
 	[RouterEnum.chat]: MessageCircleMore,
 	[RouterEnum.genImage]: ImageMinus,
-	[RouterEnum.translate]: FileType
+	[RouterEnum.translate]: FileType,
+	[RouterEnum.speechToText]: Mic
 }
 export function Nav() {
 	const navList = useMemo(
