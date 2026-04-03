@@ -12,16 +12,16 @@ export const aiModelList = [
 				model: '@cf/zai-org/glm-4.7-flash',
 				maxCount: 1000
 			},
-			{
-				name: 'gpt-oss-120b',
-				model: '@cf/openai/gpt-oss-120b',
-				maxCount: 1000
-			},
-			{
-				name: 'gpt-oss-20b',
-				model: '@cf/openai/gpt-oss-20b',
-				maxCount: 1000
-			},
+			//{
+			//	name: 'gpt-oss-120b',
+			//	model: '@cf/openai/gpt-oss-120b',
+			//	maxCount: 1000
+			//},
+			//{
+			//	name: 'gpt-oss-20b',
+			//	model: '@cf/openai/gpt-oss-20b',
+			//	maxCount: 1000
+			//},
 			{
 				name: 'llama3.3-70b',
 				model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
@@ -103,6 +103,6 @@ export const aiModelList = [
 	}
 ]
 
-export const defaultChatModel = aiModelList[0].models.find((i) => i.model === '@cf/moonshotai/kimi-k2.5').model
+export const defaultChatModel = aiModelList[0].models[0].model
 export const defaultGenImageModel = aiModelList[1].models[0].model
 export const defaultTransModel = aiModelList[2].models[0].model
